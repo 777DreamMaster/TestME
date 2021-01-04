@@ -1,12 +1,9 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>Users</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    </head>
+
+    <div th:replace="blocks/head :: head('Группы')"></div>
     <body>
-        <header th:insert="blocks/header :: header"></header>
+        <header th:replace="blocks/header :: header"></header>
 
         <div class="container mt-5">
 

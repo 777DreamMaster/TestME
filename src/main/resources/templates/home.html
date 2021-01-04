@@ -1,12 +1,9 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title th:text="${title}"></title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    </head>
+
+    <div th:replace="blocks/head :: head(${title})"></div>
     <body>
-        <header th:insert="blocks/header :: header"></header>
+        <header th:replace="blocks/header :: header"></header>
 
         <h1 th:text="'Hello, ' + ${title} + '!'" class="text-center mt-5"></h1>
 
