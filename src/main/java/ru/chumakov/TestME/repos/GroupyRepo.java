@@ -4,4 +4,5 @@ import org.springframework.data.repository.CrudRepository;
 import ru.chumakov.TestME.models.Groupy;
 
 public interface GroupyRepo extends CrudRepository<Groupy, Long> {
+    Groupy findByCode(String code);
 }

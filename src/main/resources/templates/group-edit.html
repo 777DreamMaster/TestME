@@ -1,26 +1,24 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Редактирвание пользователя</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-<header th:insert="blocks/header :: header"></header>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 
-<div class="container mt-5 mb-5">
-    <h2>Редактирвание группы</h2>
+    <div th:replace="blocks/head :: head('Редактирование группы')"></div>
+    <body>
+        <header th:replace="blocks/header :: header"></header>
 
-    <div th:each="el : ${group}">
-        <form th:action="'/groups/' + ${el.id} + '/edit'" th:method="post">
-            <input type="text" th:value="${el.name}" name="name" placeholder="Введите название группы" class="form-control"><br>
-            <input type="text" th:value="${el.code}" name="code" placeholder="Введите код группы" class="form-control"><br>
-            <button type="submit" class="btn btn-success"> Обновить</button>
-        </form>
-    </div>
+        <div class="container mt-5 mb-5">
+            <h2>Редактирвание группы</h2>
 
-</div>
+            <div th:each="el : ${group}">
+                <form th:action="'/groups/' + ${el.id} + '/edit'" th:method="post">
+                    <input type="text" th:value="${el.name}" name="name" placeholder="Введите название группы" class="form-control"><br>
+                    <input type="text" th:value="${el.code}" name="code" placeholder="Введите код группы" class="form-control"><br>
+                    <button type="submit" class="btn btn-success"> Обновить</button>
+                </form>
+            </div>
 
-<footer th:insert="blocks/footer :: footer"></footer>
-</body>
+        </div>
+
+        <footer th:insert="blocks/footer :: footer"></footer>
+    </body>
 </html>
