@@ -1,13 +1,11 @@
 package ru.chumakov.TestME.Conrollers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import ru.chumakov.TestME.models.Groupy;
 import ru.chumakov.TestME.models.User;
 import ru.chumakov.TestME.repos.GroupyRepo;
@@ -15,26 +13,28 @@ import ru.chumakov.TestME.repos.GroupyRepo;
 import java.util.ArrayList;
 import java.util.Optional;
 
-
 @Controller
+@RequestMapping("/groups")
+@PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
 public class GroupsController {
 
     @Autowired
     private GroupyRepo groupyRepo;
 
-    @GetMapping("/groups")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping
     public String getGroups(Model model) {
         Iterable <Groupy> groups = groupyRepo.findAll();
         model.addAttribute("groups",groups);
         return "groups";
     }
 
-    @GetMapping("/groups/add")
-    public String addGroup(Model model) {
+    @GetMapping("/add")
+    public String groupAdd(Model model) {
         return "groups-add";
     }
 
-    @PostMapping("/groups/add")
+    @PostMapping("/add")
     public String groupPost(@AuthenticationPrincipal User user,
                             @RequestParam String name,
                             @RequestParam String code, Model model){
@@ -43,21 +43,25 @@ public class GroupsController {
         return "redirect:/groups";
     }
 
-    @GetMapping("/groups/{id}")
-    public String addGroup(@PathVariable(value = "id") long id, Model model) {
-        if (!groupyRepo.existsById(id)){
+    @GetMapping("/{id}")
+    public String groupGetInfo(@PathVariable(value = "id") Groupy group, Model model) {
+//        if (!groupyRepo.existsById(id)){
+//            return "redirect:/groups";
+//        }
+//
+//        Optional<Groupy> group = groupyRepo.findById(id);
+        if (group==null){
             return "redirect:/groups";
         }
-
-        Optional<Groupy> group = groupyRepo.findById(id);
         ArrayList<Groupy> list = new ArrayList<>();
-        group.ifPresent(list::add);
+        //group.ifPresent(list::add);
+        list.add(group);
         model.addAttribute("group", list);
-        return "groups-name-code";
+        return "groups-info";
     }
 
-    @GetMapping("/groups/{id}/edit")
-    public String editGroup(@PathVariable(value = "id") long id, Model model) {
+    @GetMapping("/{id}/edit")
+    public String groupEdit(@PathVariable(value = "id") long id, Model model) {
         if (!groupyRepo.existsById(id)){
             return "redirect:/groups";
         }
@@ -69,7 +73,7 @@ public class GroupsController {
         return "group-edit";
     }
 
-    @PostMapping("/groups/{id}/edit")
+    @PostMapping("/{id}/edit")
     public String groupUpdate(@PathVariable(value = "id") long id, @RequestParam String name,
                               @RequestParam String code, Model model){
         Groupy groupy = groupyRepo.findById(id).orElseThrow();
@@ -79,7 +83,7 @@ public class GroupsController {
         return "redirect:/groups";
     }
 
-    @PostMapping("/groups/{id}/remove")
+    @PostMapping("/{id}/remove")
     public String groupDelete(@PathVariable(value = "id") long id, Model model){
         Groupy groupy = groupyRepo.findById(id).orElseThrow();
         groupyRepo.delete(groupy);

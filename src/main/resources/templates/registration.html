@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 
     <div th:replace="blocks/head :: head('Регистрация')"></div>
     <body>
+        <header th:replace="blocks/header :: header"></header>
         <div class="container mt-5">
 
             <h2>Добавить нового пользователя</h2>
@@ -13,10 +15,12 @@
                 Password: <input type="password" name="password" class="form-control"/> <br>
                 FirstName <input type="text" name="user_name" class="form-control"/> <br>
                 LastName <input type="text" name="user_last_name" class="form-control"/> <br>
+                <label><input type="checkbox" th:name="CURATOR" th:text="CURATOR"></label><br>
                 <button type="submit" class="btn btn-success">Зарегестрироваться</button>
             </form>
         </div>
 
+        <footer th:insert="blocks/footer :: footer"></footer>
     </body>
 
 </html>

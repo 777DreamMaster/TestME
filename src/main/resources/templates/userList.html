@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+    <div th:replace="blocks/head :: head('Пользователи')"></div>
+    <body>
+        <header th:replace="blocks/header :: header"></header>
+
+        <div class="container mt-5">
+
+            <h2>Пользователи</h2>
+<!--            <div th:each="el : ${users}" class="alert alert-info mt-2">-->
+<!--                <h3 th:text=" ${el.name}+ ' ' + ${el.code} "></h3>-->
+
+<!--                <a th:href="'/groups/' + ${el.id} ">Данные для входа</a>-->
+
+<!--            </div>-->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="el: ${users}" class="alert alert-info mt-2">
+                        <td th:text="${el.username}"></td>
+<!--                        <td th:each="i: ${el.roles}">-->
+                        <td>
+<!--                            <div th:text="${i}">></div>-->
+                            <div th:text="${el.roles}"></div>
+                        </td>
+                        <td>
+                            <a th:href="'/user/' + ${el.id} + '/edit'" class="btn btn-warning">Редактировать</a>
+                        </td>
+                        <td>
+                            <form th:action="@{/user}" method="post">
+                                <button type="submit" th:value="${el.id}" name="id" class="btn btn-danger">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <footer th:insert="blocks/footer :: footer"></footer>
+    </body>
+</html>

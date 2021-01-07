@@ -2,20 +2,23 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 
-    <div th:replace="blocks/head :: head('Группы')"></div>
+    <div th:replace="blocks/head :: head('Тесты')"></div>
     <body>
         <header th:replace="blocks/header :: header"></header>
 
         <div class="container mt-5">
 
-            <h2>Группы</h2>
-            <div th:each="el : ${groups}" class="alert alert-info mt-2">
-                <h3 th:text=" ${el.name}+ ' ' + ${el.code} "></h3>
+            <h2>Тесты</h2>
+            <div th:each="el : ${tests}" class="alert alert-info mt-2">
+                <h3 th:text=" ${el.name}+ ' от ' + ${el.creationDate.format(format)}"></h3>
 
-                <a th:href="'/groups/' + ${el.id} ">Данные для входа</a>
+                <a th:href="'/test/' + ${el.id} ">Просмотреть тест</a>
 
             </div>
+
+
         </div>
+
 
         <footer th:insert="blocks/footer :: footer"></footer>
     </body>

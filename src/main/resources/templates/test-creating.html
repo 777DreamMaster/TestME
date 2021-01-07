@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+    <div th:replace="blocks/head :: head('Создание теста')"></div>
+    <body>
+    <header th:replace="blocks/header :: header"></header>
+    <div class="container mt-5 mb-5">
+
+        <h2>Создание теста</h2><br>
+        <form th:action="@{/test/creating}"  method="post">
+            <h4>Сколько вопросов вы хотите создать?</h4>
+            <input type="text" name="count" placeholder="Введите количество вопросов" class="form-control"><br>
+            <button type="submit" class="btn btn-success">Далее</button>
+        </form>
+    </div>
+
+    <footer th:insert="blocks/footer :: footer"></footer>
+    </body>
+</html>
