@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+    <div th:replace="blocks/head :: head('Вход в группу')"></div>
+    <body>
+        <header th:replace="blocks/header :: header"></header>
+
+        <div class="container mt-5 mb-5">
+            <h2>Вход в группу</h2>
+
+            <div>
+                <form th:action="@{/groups/join}" th:method="post">
+                    <input type="text" name="code" placeholder="Введите код группы" class="form-control"><br>
+                    <button type="submit" class="btn btn-success">Вступить</button>
+                </form>
+            </div>
+
+        </div>
+
+        <footer th:insert="blocks/footer :: footer"></footer>
+    </body>
+</html>

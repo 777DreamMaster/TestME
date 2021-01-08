@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface AnswerRepo extends CrudRepository<Answer, Long> {
     List<Answer> findAllByQuestion(Question question);
+    Long countByQuestionAndCorrect(Question question, boolean correct);
 }

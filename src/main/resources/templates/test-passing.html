@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+    <div th:replace="blocks/head :: head('Прохождение теста')"></div>
+    <body>
+        <header th:replace="blocks/header :: header"></header>
+
+        <div class="container mt-5 mb-5">
+
+            <h2 th:text="${test.name}"></h2><br>
+            <form th:action="'/test/' + ${test.id} + '/pass'" method="post">
+
+                <div class="mt-3 mb-3" th:each="q , i: ${QA.keySet()}">
+
+                    <div class="mb-3">
+                        <h6 th:text="${i.index+1} + '. ' + ${q.text}"></h6>
+                        <input type="hidden" th:name="'q'+${i.index+1}" th:value="${q.id}">
+                    </div>
+
+                    <div class="ml-4">
+                        <h6>Варианты ответов</h6>
+                        <table class="table-sub-heading-color mb-3">
+                            <tbody>
+                            <tr th:each="an, j: ${QA.get(q)}">
+                                <td><input type="checkbox" th:name="'ans'+${j.index+1}+'cor'+${i.index+1}" class="mr-3"></td>
+                                    <input type="hidden" th:name="'ans'+${j.index+1}+'q'+${i.index+1}" th:value="${an.id}">
+                                <td th:text="${an.text}"></td>
+
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-success">Завершить</button>
+            </form>
+
+        </div>
+
+        <footer th:insert="blocks/footer :: footer"></footer>
+    </body>
+</html>

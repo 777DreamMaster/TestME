@@ -2,6 +2,7 @@ package ru.chumakov.TestME.models;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Entity
 public class Testing {
@@ -10,7 +11,7 @@ public class Testing {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Date passDate;
+    private LocalDateTime passDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Test test;
@@ -22,7 +23,7 @@ public class Testing {
     public Testing() {
     }
 
-    public Testing(Date passDate, Test test, User user) {
+    public Testing(LocalDateTime passDate, Test test, User user) {
         this.passDate = passDate;
         this.test = test;
         this.user = user;
@@ -37,11 +38,11 @@ public class Testing {
         this.id = id;
     }
 
-    public Date getPassDate() {
+    public LocalDateTime getPassDate() {
         return passDate;
     }
 
-    public void setPassDate(Date passDate) {
+    public void setPassDate(LocalDateTime passDate) {
         this.passDate = passDate;
     }
 

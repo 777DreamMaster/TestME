@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+    <div th:replace="blocks/head :: head('Результаты')"></div>
+    <body>
+        <header th:replace="blocks/header :: header"></header>
+
+        <div class="container mt-5">
+
+            <h2>Результаты</h2>
+            <div th:each="el : ${results}" class="alert alert-info mt-2">
+                <h3 th:text=" ${el.test.name}"></h3>
+                <h6 th:text="'Дата выполнения: ' + ${el.passDate.format(format)}"></h6>
+
+                <a th:href="'/results/' + ${el.id} ">Подробнее</a>
+
+            </div>
+        </div>
+
+        <footer th:insert="blocks/footer :: footer"></footer>
+    </body>
+</html>
