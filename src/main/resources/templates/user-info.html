@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+    <div th:replace="blocks/head :: head('Группы')"></div>
+    <body>
+        <header th:replace="blocks/header :: header"></header>
+
+        <div class="container mt-5">
+
+            <div>
+                <label>Ваше имя: <input type="text" th:value="${user.firstName}" name="username" disabled class="form-control"></label><br>
+                <label>Ваша фамилия: <input type="text" th:value="${user.lastName}" name="password" disabled class="form-control"></label><br>
+                <label>Ваш username: <input type="text" th:value="${user.username}" name="firstName" disabled class="form-control"></label><br>
+            </div>
+            <div sec:authorize="!hasAnyAuthority('ADMIN','CURATOR')">
+                <h2>Группы</h2>
+                <div th:each="el : ${groups}" class="alert alert-info mt-2">
+                    <h3 th:text=" ${el.name}"></h3>
+                    <a th:href="'/tests/' + ${el.id}">Тесты группы</a>
+                    <form class="mt-3" th:action="@{/user/profile}" method="post">
+                        <button type="submit" th:value="${el.id}" name="id" class="btn btn-danger">Выйти из группы</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <footer th:insert="blocks/footer :: footer"></footer>
+    </body>
+</html>

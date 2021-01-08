@@ -72,6 +72,7 @@ public class GroupsController {
             return "redirect:/";
         }
         groupy.getContainsUsers().add(user);
+        user.getInGroups().add(groupy);
         groupyRepo.save(groupy);
         return "redirect:/";
     }

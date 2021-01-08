@@ -2,7 +2,8 @@ package ru.chumakov.TestME.models;
 
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Groupy {
@@ -17,13 +18,13 @@ public class Groupy {
     @ManyToOne(fetch = FetchType.EAGER)
     private User owner;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "belong",
             joinColumns = {@JoinColumn(name = "group_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")}
     )
-    private List<User> containsUsers;
+    private Set<User> containsUsers;
 
     //constructors
     public Groupy() {
@@ -68,11 +69,24 @@ public class Groupy {
         this.owner = owner;
     }
 
-    public List<User> getContainsUsers() {
+    public Set<User> getContainsUsers() {
         return containsUsers;
     }
 
-    public void setContainsUsers(List<User> containsUsers) {
+    public void setContainsUsers(Set<User> containsUsers) {
         this.containsUsers = containsUsers;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Groupy groupy = (Groupy) o;
+        return Objects.equals(id, groupy.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
