@@ -2,26 +2,17 @@ package ru.chumakov.TestME.Conrollers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.chumakov.TestME.models.Answer;
-import ru.chumakov.TestME.models.Groupy;
-import ru.chumakov.TestME.models.Question;
-import ru.chumakov.TestME.models.Test;
-import ru.chumakov.TestME.repos.AnswerRepo;
-import ru.chumakov.TestME.repos.GroupyRepo;
-import ru.chumakov.TestME.repos.QuestionRepo;
-import ru.chumakov.TestME.repos.TestRepo;
+import ru.chumakov.TestME.models.*;
+import ru.chumakov.TestME.repos.*;
 
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/test")
@@ -35,6 +26,10 @@ public class TestController {
     private QuestionRepo questionRepo;
     @Autowired
     private AnswerRepo answerRepo;
+    @Autowired
+    private TestingRepo testingRepo;
+    @Autowired
+    private ResultRepo resultRepo;
 
     @GetMapping
     public String getTests(Model model){
@@ -95,24 +90,18 @@ public class TestController {
 
         answerRepo.saveAll(answers);
 
-        //model.addAttribute("all",form);
-        //return "test-123";
         return "redirect:/test";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping("/{id}")
-    public String testGetInfo(@PathVariable(value = "id") Test test, Model model) {
-//        if (!groupyRepo.existsById(id)){
-//            return "redirect:/groups";
-//        }
-//
-//        Optional<Groupy> group = groupyRepo.findById(id);
+    public String testGetInfo(@PathVariable(value = "id") Test test,
+                              Model model) {
         if (test==null){
             return "redirect:/test";
         }
         ArrayList<Test> tests = new ArrayList<>();
         ArrayList<Question> questions = new ArrayList<>(questionRepo.findAllByTest(test));
-        //ArrayList<Answer> answers = new ArrayList<>(answerRepo.findAllByQuestion());
 
         Map<Question,ArrayList<Answer>> questionWithAnswers= new HashMap<>();
         for (int i = 0; i <questions.size() ; i++) {
@@ -122,6 +111,66 @@ public class TestController {
         model.addAttribute("test", tests);
         model.addAttribute("QA",questionWithAnswers);
         return "test-info";
+    }
+
+    @GetMapping("/{id}/pass")
+    public String passingTest(@PathVariable(value = "id") Test test,
+                              Model model) {
+        if (test==null){
+            return "redirect:/test";
+        }
+        Long count = questionRepo.countByTest(test) ;
+
+        ArrayList<Question> questions = new ArrayList<>(questionRepo.findAllByTest(test));
+        Map<Question,ArrayList<Answer>> questionWithAnswers= new HashMap<>();
+        for (int i = 0; i <questions.size() ; i++) {
+            questionWithAnswers.put(questions.get(i),new ArrayList<>(answerRepo.findAllByQuestion(questions.get(i))));
+        }
+
+        model.addAttribute("count", count );
+        model.addAttribute("test", test);
+        model.addAttribute("QA",questionWithAnswers);
+
+        return "test-passing";
+    }
+
+    @PostMapping("/{id}/pass")
+    public String sendTestResults(@PathVariable(value = "id") Test test,
+                                  @AuthenticationPrincipal User user,
+                                  @RequestParam Map<String,String> form,
+                                  Model model) {
+        Testing testing = new Testing(LocalDateTime.now(),test,user);
+
+        testingRepo.save(testing);
+        List<Result> resultList = new ArrayList<>();
+        Result result;
+        for (int i = 1; i <= questionRepo.countByTest(test) ; i++) {
+
+            long qID = Long.parseLong(form.get("q" + i));
+            Question question = questionRepo.findById(qID).orElseThrow();
+            for (int j = 1; j <=4 ; j++) {
+                String paramName = "ans" + j + "q" + i;
+                String paramNameCor = "ans" + j + "cor" + i;
+                if (form.containsKey(paramNameCor)) {
+                    long aID = Long.parseLong(form.get(paramName));
+
+                    result = new Result(
+                            new ResultKey(
+                                        testing,
+                                        question,
+                                        answerRepo.findById(aID).orElseThrow()),
+                                    testing,
+                                    question,answerRepo.findById(aID).orElseThrow());
+
+                    resultList.add(result);
+                }
+
+            }
+        }
+
+        resultRepo.saveAll(resultList);
+
+        return "redirect:/results/" + testing.getId();
     }
 
 }

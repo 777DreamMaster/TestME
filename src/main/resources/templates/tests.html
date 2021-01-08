@@ -12,8 +12,9 @@
             <div th:each="el : ${tests}" class="alert alert-info mt-2">
                 <h3 th:text=" ${el.name}+ ' от ' + ${el.creationDate.format(format)}"></h3>
 
-                <a th:href="'/test/' + ${el.id} ">Просмотреть тест</a>
+                <a th:href="'/test/' + ${el.id}" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')">Просмотреть тест</a>
 
+                <a class="btn btn-info" th:href="'/test/' + ${el.id} + '/pass'">Пройти тест</a>
             </div>
 
 
