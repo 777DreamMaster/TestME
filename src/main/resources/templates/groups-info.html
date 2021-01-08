@@ -8,12 +8,20 @@
 
         <div class="container mt-5">
             <div th:each="el : ${group}" class="alert alert-info mt-2">
-                <h3 th:text=" ${el.name}+ ' ' + ${el.name} "></h3>
+                <h3 th:text=" ${el.name}"></h3>
                 <p><b>Ключ: </b><span th:text="${el.code}"></span></p>
                 <a th:href="'/groups/' + ${el.id} + '/edit'" class="btn btn-warning mb-3">Редактировать</a>
                 <form th:action="'/groups/' + ${el.id} + '/remove'" method="post">
                     <button th:href="'/groups/' + ${el.id} + '/remove'" type="submit" class="btn btn-danger">Удалить</button>
                 </form>
+                <h3 class="my-4">Участники</h3>
+
+                <div th:if="${!users.isEmpty()}">
+                    <ul class="list-group">
+                        <li th:each="user : ${users}" class="list-group-item" th:text="${user.firstName} + ' ' + ${user.lastName}"></li>
+                    </ul>
+                </div>
+                <p th:if="${users.isEmpty()}">В этой группе нету участников</p>
 
             </div>
         </div>

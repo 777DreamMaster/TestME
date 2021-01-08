@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -19,6 +20,14 @@ public class User implements UserDetails {
 
     private String username;
     private String password;
+
+    @ManyToMany
+    @JoinTable(
+            name = "belong",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "group_id")}
+    )
+    private List<Groupy> inGroups;
 
     private boolean active;
 
@@ -93,6 +102,14 @@ public class User implements UserDetails {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public List<Groupy> getInGroups() {
+        return inGroups;
+    }
+
+    public void setInGroups(List<Groupy> inGroups) {
+        this.inGroups = inGroups;
     }
 
     //UserDetails

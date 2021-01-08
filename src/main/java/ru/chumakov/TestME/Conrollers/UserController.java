@@ -27,6 +27,13 @@ public class UserController {
         return "userList";
     }
 
+    @PostMapping
+    public String userDelete(@RequestParam long id, Model model){
+        User user = userRepo.findById(id).orElseThrow();
+        userRepo.delete(user);
+        return "redirect:/user";
+    }
+
     @GetMapping("/{id}/edit")
     public String editUser(@PathVariable(value = "id") long id, Model model) {
         if (!userRepo.existsById(id)){
@@ -68,13 +75,6 @@ public class UserController {
         }
 
         userRepo.save(user);
-        return "redirect:/user";
-    }
-
-    @PostMapping
-    public String userDelete(@RequestParam long id, Model model){
-        User user = userRepo.findById(id).orElseThrow();
-        userRepo.delete(user);
         return "redirect:/user";
     }
 }

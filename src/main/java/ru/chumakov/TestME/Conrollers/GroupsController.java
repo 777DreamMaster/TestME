@@ -15,7 +15,6 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/groups")
-@PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
 public class GroupsController {
 
     @Autowired
@@ -29,11 +28,13 @@ public class GroupsController {
         return "groups";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping("/add")
     public String groupAdd(Model model) {
         return "groups-add";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @PostMapping("/add")
     public String groupPost(@AuthenticationPrincipal User user,
                             @RequestParam String name,
@@ -43,23 +44,39 @@ public class GroupsController {
         return "redirect:/groups";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping("/{id}")
     public String groupGetInfo(@PathVariable(value = "id") Groupy group, Model model) {
-//        if (!groupyRepo.existsById(id)){
-//            return "redirect:/groups";
-//        }
-//
-//        Optional<Groupy> group = groupyRepo.findById(id);
+
         if (group==null){
             return "redirect:/groups";
         }
         ArrayList<Groupy> list = new ArrayList<>();
-        //group.ifPresent(list::add);
         list.add(group);
+
         model.addAttribute("group", list);
+        model.addAttribute("users",group.getContainsUsers());
         return "groups-info";
     }
 
+    @GetMapping("/join")
+    public String getGroupJoin(){
+        return "join-group";
+    }
+
+    @PostMapping("/join")
+    public String groupJoin(@AuthenticationPrincipal User user,
+                            @RequestParam String code){
+        Groupy groupy = groupyRepo.findByCode(code);
+        if (groupy==null){
+            return "redirect:/";
+        }
+        groupy.getContainsUsers().add(user);
+        groupyRepo.save(groupy);
+        return "redirect:/";
+    }
+    
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping("/{id}/edit")
     public String groupEdit(@PathVariable(value = "id") long id, Model model) {
         if (!groupyRepo.existsById(id)){
@@ -73,6 +90,7 @@ public class GroupsController {
         return "group-edit";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @PostMapping("/{id}/edit")
     public String groupUpdate(@PathVariable(value = "id") long id, @RequestParam String name,
                               @RequestParam String code, Model model){
@@ -83,6 +101,7 @@ public class GroupsController {
         return "redirect:/groups";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @PostMapping("/{id}/remove")
     public String groupDelete(@PathVariable(value = "id") long id, Model model){
         Groupy groupy = groupyRepo.findById(id).orElseThrow();

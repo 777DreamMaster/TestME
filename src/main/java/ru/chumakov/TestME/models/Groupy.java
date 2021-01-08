@@ -2,6 +2,7 @@ package ru.chumakov.TestME.models;
 
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Groupy {
@@ -15,6 +16,14 @@ public class Groupy {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private User owner;
+
+    @ManyToMany
+    @JoinTable(
+            name = "belong",
+            joinColumns = {@JoinColumn(name = "group_id")},
+            inverseJoinColumns = {@JoinColumn(name = "user_id")}
+    )
+    private List<User> containsUsers;
 
     //constructors
     public Groupy() {
@@ -57,5 +66,13 @@ public class Groupy {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public List<User> getContainsUsers() {
+        return containsUsers;
+    }
+
+    public void setContainsUsers(List<User> containsUsers) {
+        this.containsUsers = containsUsers;
     }
 }
