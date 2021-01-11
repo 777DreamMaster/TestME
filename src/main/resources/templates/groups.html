@@ -12,7 +12,7 @@
             <div th:each="el : ${groups}" class="alert alert-info mt-2">
                 <h3 th:text=" ${el.name}+ ' ' + ${el.code} "></h3>
 
-                <a th:href="'/groups/' + ${el.id} ">Данные для входа</a>
+                <a th:href="'/groups/' + ${el.id} ">Данные группы</a>
 
             </div>
         </div>

@@ -8,15 +8,32 @@
 
         <div class="container mt-5">
 
-            <h2>Тесты</h2>
-            <div th:each="el : ${tests}" class="alert alert-info mt-2">
-                <h3 th:text=" ${el.name}+ ' от ' + ${el.creationDate.format(format)}"></h3>
+            <h1>Тесты</h1>
 
-                <a th:href="'/test/' + ${el.id}" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')">Просмотреть тест</a>
+            <div th:if="${GT!=null}">
+               <div th:each="group : ${GT.keySet()}" th:if="${!GT.get(group).isEmpty()}">
+                   <h2 th:text="${group.name}"></h2>
 
-                <a class="btn btn-info" th:href="'/test/' + ${el.id} + '/pass'">Пройти тест</a>
+                   <div th:each="test : ${GT.get(group)}" class="alert alert-info mt-2">
+                       <h4 th:text=" ${test.name}+ ' от ' + ${test.creationDate.format(format)}"></h4>
+
+                       <a th:href="'/test/' + ${test.id}" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')">Просмотреть тест</a>
+                       <a class="btn btn-info" th:href="'/test/' + ${test.id} + '/pass'"
+                          sec:authorize="!hasAnyAuthority('ADMIN','CURATOR')">Пройти тест</a>
+                   </div>
+
+               </div>
             </div>
+            <div sec:authorize="!hasAuthority('CURATOR')||hasAuthority('ADMIN')">
+                <h2>Общие тесты</h2>
+                <div th:each="el : ${tests}" class="alert alert-info mt-2">
+                    <h4 th:text=" ${el.name}+ ' от ' + ${el.creationDate.format(format)}"></h4>
 
+                    <a th:href="'/test/' + ${el.id}" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')">Просмотреть тест</a>
+
+                    <a class="btn btn-info" th:href="'/test/' + ${el.id} + '/pass'" sec:authorize="!hasAnyAuthority('ADMIN','CURATOR')">Пройти тест</a>
+                </div>
+            </div>
 
         </div>
 

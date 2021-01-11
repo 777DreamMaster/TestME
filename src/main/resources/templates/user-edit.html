@@ -2,24 +2,26 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 
-    <div th:replace="blocks/head :: head('Редактирование группы')"></div>
+    <div th:replace="blocks/head :: head('Редактирование данных пользователя')"></div>
     <body>
         <header th:replace="blocks/header :: header"></header>
 
         <div class="container mt-5 mb-5">
-            <h2>Редактирвание группы</h2>
+            <h2>Редактирвание данных пользователя</h2>
 
             <div th:each="el : ${user}">
                 <form th:action="'/user/' + ${el.id} + '/edit'" th:method="post">
                     <input type="text" th:value="${el.username}" name="username" placeholder="Введите username" class="form-control"><br>
                     <input type="text" th:value="${el.password}" name="password" placeholder="Введите пароль" class="form-control"><br>
                     <input type="text" th:value="${el.firstName}" name="firstName" placeholder="Введите имя" class="form-control"><br>
-                    <input type="text" th:value="${el.lastName}" th:name="lastName" placeholder="Введите фамилию" class="form-control"><br>
-                    <th:block th:each="role : ${roles}">
-                        <label><input type="checkbox" th:name="${role}" th:text="${role}"
-                                      th:checked="${el.roles.contains(role)}">
-                        </label><br>
-                    </th:block><br>
+                    <input type="text" th:value="${el.lastName}" th:name="lastName" placeholder="Введите фамилию" class="form-control">
+                    <div class="my-2">
+                        <th:block  sec:authorize="hasAuthority('ADMIN')" th:each="role : ${roles}">
+                            <label><input type="checkbox" th:name="${role}" th:text="${role}"
+                                          th:checked="${el.roles.contains(role)}">
+                            </label><br>
+                        </th:block>
+                    </div>
                     <button type="submit" class="btn btn-success" > Обновить</button>
                 </form>
             </div>

@@ -20,7 +20,7 @@ public class GroupsController {
     @Autowired
     private GroupyRepo groupyRepo;
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping
     public String getGroups(Model model) {
         Iterable <Groupy> groups = groupyRepo.findAll();

@@ -41,13 +41,17 @@ public class UserController {
         return "redirect:/user";
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/{id}/edit")
-    public String editUser(@PathVariable(value = "id") long id, Model model) {
-        if (!userRepo.existsById(id)){
-            return "redirect:/user";
-        }
 
+    @GetMapping("/{id}/edit")
+    public String editUser(@AuthenticationPrincipal User you,
+                           @PathVariable(value = "id") long id,
+                           Model model) {
+        if (!userRepo.existsById(id)){
+            return "redirect:/";
+        }
+        if (you.getId()!=id && !you.getAuthorities().contains(Role.ADMIN)){
+            return "redirect:/user/"+you.getId()+"/edit";
+        }
         Optional<User> user = userRepo.findById(id);
         ArrayList<User> list = new ArrayList<>();
         user.ifPresent(list::add);
@@ -56,9 +60,10 @@ public class UserController {
         return "user-edit";
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+
     @PostMapping("/{id}/edit")
     public String userUpdate(@PathVariable(value = "id") long id,
+                             @AuthenticationPrincipal User you,
                              @RequestParam String username,
                              @RequestParam String password,
                              @RequestParam String firstName,
@@ -75,23 +80,36 @@ public class UserController {
                 .map(Role::name)
                 .collect(Collectors.toSet());
 
-        user.getRoles().clear();
+        if (you.getAuthorities().contains(Role.ADMIN)) {
 
-        for(String key : form.keySet()){
-            if (roles.contains(key)){
-                user.getRoles().add(Role.valueOf(key));
+            user.getRoles().clear();
+
+            for (String key : form.keySet()) {
+                if (roles.contains(key)) {
+                    user.getRoles().add(Role.valueOf(key));
+                }
             }
         }
 
         userRepo.save(user);
+
+        if (id == you.getId()){
+            return "redirect:/user/profile";
+        }
         return "redirect:/user";
     }
 
     @GetMapping("/profile")
-    public String getUserInfo(@AuthenticationPrincipal User user,
+    public String getUserInfo(@AuthenticationPrincipal User you,
                               Model model){
+        User user = userRepo.findById(you.getId()).orElseThrow();
         model.addAttribute("user", user);
-        model.addAttribute("groups", user.getInGroups());
+
+        Set<Groupy> groups;
+        if (user.getAuthorities().contains(Role.CURATOR)) groups = user.getOwnGroups();
+        else groups = user.getInGroups();
+
+        model.addAttribute("groups", groups);
         return "user-info";
     }
 

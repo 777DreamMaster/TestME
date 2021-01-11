@@ -32,9 +32,24 @@ public class TestController {
     private ResultRepo resultRepo;
 
     @GetMapping
-    public String getTests(Model model){
-        Iterable <Test> tests = testRepo.findAll();
-        model.addAttribute("tests",tests);
+    public String getTests(@AuthenticationPrincipal User user,
+                           Model model){
+        Map<Groupy, ArrayList<Test>> GT = new HashMap<>();
+        Set<Groupy> groups;
+        if (!user.getAuthorities().contains(Role.ADMIN)){
+
+            if (user.getAuthorities().contains(Role.CURATOR)) groups = user.getOwnGroups();
+            else groups = user.getInGroups();
+
+            for (Groupy group : groups) {
+                GT.put(group, new ArrayList<>(testRepo.findAllByFromGroup(group)));
+            }
+            model.addAttribute("GT", GT);
+        }
+
+        Iterable <Test> testsAll = testRepo.findAllByFromGroup(null);
+        model.addAttribute("tests",testsAll);
+
         model.addAttribute("format", DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
         return "tests";
     }
