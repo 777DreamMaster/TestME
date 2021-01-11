@@ -115,17 +115,59 @@ public class TestController {
         if (test==null){
             return "redirect:/test";
         }
-        ArrayList<Test> tests = new ArrayList<>();
+
         ArrayList<Question> questions = new ArrayList<>(questionRepo.findAllByTest(test));
 
         Map<Question,ArrayList<Answer>> questionWithAnswers= new HashMap<>();
         for (int i = 0; i <questions.size() ; i++) {
             questionWithAnswers.put(questions.get(i),new ArrayList<>(answerRepo.findAllByQuestion(questions.get(i))));
         }
-        tests.add(test);
-        model.addAttribute("test", tests);
+
+        model.addAttribute("test", test);
         model.addAttribute("QA",questionWithAnswers);
         return "test-info";
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
+    @PostMapping("/{id}")
+    public String testEditInfo(@PathVariable(value = "id") Test test,
+                               @RequestParam Map<String,String> form,
+                               @RequestParam String name,
+                               Model model) {
+        test.setName(name);
+
+        ArrayList <Question> questions = new ArrayList<>();
+        ArrayList <Answer> answers = new ArrayList<>();
+
+        for (int i = 1; i <= questionRepo.countByTest(test) ; i++) {
+            long qID = Long.parseLong(form.get("q" + i + "id"));
+            String qText = form.get("q" + i);
+
+            Question question = questionRepo.findById(qID).orElseThrow();
+            question.setText(qText);
+
+            questions.add(question);
+
+            for (int j = 1; j <=4 ; j++) {
+                long anID = Long.parseLong(form.get("ans" + j + "q" + i + "id"));
+                String anText = form.get("ans" + j + "q" + i);
+                boolean anCor = form.containsKey("ans" + j + "cor" + i);
+
+                Answer answer = answerRepo.findById(anID).orElseThrow();
+                answer.setText(anText);
+                answer.setCorrect(anCor);
+
+                answers.add(answer);
+            }
+        }
+
+        testRepo.save(test);
+
+        questionRepo.saveAll(questions);
+
+        answerRepo.saveAll(answers);
+
+        return "redirect:/test/" + test.getId();
     }
 
     @GetMapping("/{id}/pass")
