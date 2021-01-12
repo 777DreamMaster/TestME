@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+    <div th:replace="blocks/head :: head('Результаты')"></div>
+    <body>
+        <header th:replace="blocks/header :: header"></header>
+
+        <div class="container mt-5">
+
+            <h2>Результаты</h2>
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Пользователь</th>
+                        <th scope="col">Дата выполнения</th>
+                        <th scope="col">Результат</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="testing, i : ${testings}" class="alert alert-info mt-2">
+                        <th scope="row" th:text="${i.index + 1}"></th>
+                        <td>
+                            <a th:href="${'/results/' + testing.id}"
+                               th:text="${testing.user.firstName} + ' ' + ${testing.user.lastName}"
+                                class="text-decoration-none text-dark">
+
+                            </a>
+                        </td>
+
+                        <td>
+                            <div th:text="${testing.passDate.format(format)}"></div>
+                        </td>
+                        <td th:text="${tRes.get(testing)}"> </td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <footer th:insert="blocks/footer :: footer"></footer>
+    </body>
+</html>

@@ -1,6 +1,7 @@
 package ru.chumakov.TestME.models;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 public class Question {
@@ -13,6 +14,9 @@ public class Question {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Test test;
+
+    @OneToMany(mappedBy = "question",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private Set<Answer> answers;
 
     //constructors
     public Question() {

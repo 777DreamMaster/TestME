@@ -6,10 +6,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.chumakov.TestME.models.Groupy;
-import ru.chumakov.TestME.models.Role;
-import ru.chumakov.TestME.models.User;
+import ru.chumakov.TestME.models.*;
 import ru.chumakov.TestME.repos.GroupyRepo;
+import ru.chumakov.TestME.repos.ResultRepo;
+import ru.chumakov.TestME.repos.TestingRepo;
 import ru.chumakov.TestME.repos.UserRepo;
 
 import javax.sound.midi.Soundbank;
@@ -33,13 +33,20 @@ public class UserController {
         return "userList";
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    /*@PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     public String userDelete(@RequestParam long id, Model model){
         User user = userRepo.findById(id).orElseThrow();
+        List<Testing> testings = testingRepo.findAllByUser(user);
+
+        Set<Result> results = new HashSet<>();
+        for (Testing testing: testings) {
+            results.addAll(resultRepo.findAllByTesting(testing));
+        }
+        resultRepo.deleteAll(results);
         userRepo.delete(user);
         return "redirect:/user";
-    }
+    }*/
 
 
     @GetMapping("/{id}/edit")

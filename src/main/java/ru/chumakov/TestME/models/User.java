@@ -25,6 +25,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "owner",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private Set<Groupy> ownGroups;
 
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private Set<Testing> testings;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "belong",

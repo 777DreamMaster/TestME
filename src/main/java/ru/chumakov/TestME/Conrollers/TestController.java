@@ -36,16 +36,15 @@ public class TestController {
                            Model model){
         Map<Groupy, ArrayList<Test>> GT = new HashMap<>();
         Set<Groupy> groups;
-        if (!user.getAuthorities().contains(Role.ADMIN)){
 
-            if (user.getAuthorities().contains(Role.CURATOR)) groups = user.getOwnGroups();
-            else groups = user.getInGroups();
+        if (user.getAuthorities().contains(Role.CURATOR)) groups = groupyRepo.findAllByOwner(user);
+        else groups = user.getInGroups();
 
-            for (Groupy group : groups) {
-                GT.put(group, new ArrayList<>(testRepo.findAllByFromGroup(group)));
-            }
-            model.addAttribute("GT", GT);
+        for (Groupy group : groups) {
+            GT.put(group, new ArrayList<>(testRepo.findAllByFromGroup(group)));
         }
+        model.addAttribute("GT", GT);
+
 
         Iterable <Test> testsAll = testRepo.findAllByFromGroup(null);
         model.addAttribute("tests",testsAll);
@@ -228,6 +227,53 @@ public class TestController {
         resultRepo.saveAll(resultList);
 
         return "redirect:/results/" + testing.getId();
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
+    @GetMapping("/{id}/results")
+    public String getTestResults(@PathVariable(value = "id") Test test,
+                                Model model) {
+        if (test==null){
+            return "redirect:/test";
+        }
+
+        Set<Testing> testings = testingRepo.findAllByTestOrderByPassDateDesc(test);
+        HashMap<Testing , String> TestingRes = new HashMap<>();
+        for (Testing testing : testings) {
+
+            long correctCountUser = 0;
+            long correctCountTest = 0;
+
+            Set<Result> resultsSet = resultRepo.findAllByTesting(testing);
+
+            for (Result result: resultsSet) {
+                if (result.getAnswer().isCorrect())
+                    correctCountUser++;
+            }
+
+            ArrayList<Question> questions = new ArrayList<>(questionRepo.findAllByTest(test));
+            for (int i = 0; i <questions.size() ; i++) {
+                correctCountTest+=answerRepo.countByQuestionAndCorrect(questions.get(i),true);
+            }
+            TestingRes.put(testing, correctCountUser + "/" + correctCountTest);
+        }
+/*
+        ArrayList<Question> questions = new ArrayList<>(questionRepo.findAllByTest(test));
+
+        Map<Question,ArrayList<Answer>> questionWithAnswers= new HashMap<>();
+        for (int i = 0; i <questions.size() ; i++) {
+            questionWithAnswers.put(questions.get(i),new ArrayList<>(answerRepo.findAllByQuestion(questions.get(i))));
+        }
+
+        model.addAttribute("test", test);
+        model.addAttribute("QA",questionWithAnswers);
+*/
+
+        model.addAttribute("testings", testings);
+        model.addAttribute("tRes", TestingRes);
+        model.addAttribute("format", DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+
+        return "test-results";
     }
 
 }

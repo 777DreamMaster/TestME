@@ -18,6 +18,9 @@ public class Groupy {
     @ManyToOne(fetch = FetchType.EAGER)
     private User owner;
 
+    @OneToMany(mappedBy = "fromGroup",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private Set<Test> tests;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "belong",

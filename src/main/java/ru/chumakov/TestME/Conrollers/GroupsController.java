@@ -59,6 +59,15 @@ public class GroupsController {
         return "groups-info";
     }
 
+    /*@PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
+    @PostMapping("/remove")
+    public String groupDelete(@RequestParam long id, Model model){
+        Groupy groupy = groupyRepo.findById(id).orElseThrow();
+        System.out.println(groupy.getName());
+        groupyRepo.delete(groupy);
+        return "redirect:/groups";
+    }*/
+
     @GetMapping("/join")
     public String getGroupJoin(){
         return "join-group";
@@ -99,14 +108,6 @@ public class GroupsController {
         groupy.setName(name);
         groupy.setCode(code);
         groupyRepo.save(groupy);
-        return "redirect:/groups";
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
-    @PostMapping("/{id}/remove")
-    public String groupDelete(@PathVariable(value = "id") long id, Model model){
-        Groupy groupy = groupyRepo.findById(id).orElseThrow();
-        groupyRepo.delete(groupy);
         return "redirect:/groups";
     }
 
