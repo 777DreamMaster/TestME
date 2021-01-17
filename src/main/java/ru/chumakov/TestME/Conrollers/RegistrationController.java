@@ -1,8 +1,10 @@
 package ru.chumakov.TestME.Conrollers;
 
+import org.dom4j.rule.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -10,6 +12,8 @@ import ru.chumakov.TestME.models.Role;
 import ru.chumakov.TestME.models.User;
 import ru.chumakov.TestME.repos.UserRepo;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,7 +25,7 @@ public class RegistrationController {
     private UserRepo userRepo;
 
     @GetMapping("/registration")
-    public String registration(){
+    public String getRegister(){
         return "registration";
     }
 
@@ -36,8 +40,8 @@ public class RegistrationController {
         User userFromDB = userRepo.findByUsername(username);
 
         if (userFromDB!=null){
-            model.addAttribute("message", "Пользователь уже существует");
-            return registration();
+            model.addAttribute("userError", "Пользователь c таким логином уже существует");
+            return "registration";
         }
         User user = new User(user_name,user_last_name,username,password,true);
 

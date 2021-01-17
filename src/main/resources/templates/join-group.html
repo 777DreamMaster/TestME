@@ -11,7 +11,22 @@
 
             <div>
                 <form th:action="@{/groups/join}" th:method="post">
-                    <input type="text" name="code" placeholder="Введите код группы" class="form-control"><br>
+                    <div class="mb-3">
+                        <select class="form-select" name="group">
+                            <option selected th:value="${-1}">Группы</option>
+                            <option th:each="group : ${groups}" th:text="${group.name}" th:value="${group.id}"></option>
+                        </select>
+
+                    </div>
+                    <div class="form-floating my-3">
+
+                        <input type="text" name="code" id="floatingCode" placeholder="Введите код группы" class="form-control" required>
+                        <label for="floatingCode">Код группы</label>
+
+                        <div class="text-danger" th:text="${groupError}"
+                             th:if="${groupError!=null}">
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-success">Вступить</button>
                 </form>
             </div>

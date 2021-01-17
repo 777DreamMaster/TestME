@@ -13,7 +13,7 @@
                 <h3 th:text=" ${el.test.name}"></h3>
                 <h6 th:text="'Дата выполнения: ' + ${el.passDate.format(format)}"></h6>
 
-                <a th:href="'/results/' + ${el.id} ">Подробнее</a>
+                <a class="text-decoration-none" th:href="'/results/' + ${el.id} ">Подробнее</a>
 
             </div>
         </div>

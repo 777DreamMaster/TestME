@@ -12,8 +12,9 @@ import ru.chumakov.TestME.models.User;
 import ru.chumakov.TestME.repos.GroupyRepo;
 import ru.chumakov.TestME.repos.UserRepo;
 
-import javax.sound.midi.Soundbank;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -27,38 +28,33 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public String userList (Model model){
+    public String getUserList (Model model){
         model.addAttribute("users",userRepo.findAll());
 
         return "userList";
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping
-    public String userDelete(@RequestParam long id, Model model){
-        User user = userRepo.findById(id).orElseThrow();
-        userRepo.delete(user);
-        return "redirect:/user";
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{id}/edit")
-    public String editUser(@PathVariable(value = "id") long id, Model model) {
+    public String getUserEdit(@AuthenticationPrincipal User you,
+                           @PathVariable(value = "id") long id,
+                           Model model) {
         if (!userRepo.existsById(id)){
-            return "redirect:/user";
+            return "redirect:/";
         }
+        if (you.getId()!=id && !you.getAuthorities().contains(Role.ADMIN)){
+            return "redirect:/user/"+you.getId()+"/edit";
+        }
+        User user = userRepo.findById(id).orElseThrow();
 
-        Optional<User> user = userRepo.findById(id);
-        ArrayList<User> list = new ArrayList<>();
-        user.ifPresent(list::add);
-        model.addAttribute("user", list);
+        model.addAttribute("user", user);
         model.addAttribute("roles", Role.values());
         return "user-edit";
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+
     @PostMapping("/{id}/edit")
     public String userUpdate(@PathVariable(value = "id") long id,
+                             @AuthenticationPrincipal User you,
                              @RequestParam String username,
                              @RequestParam String password,
                              @RequestParam String firstName,
@@ -66,6 +62,14 @@ public class UserController {
                              @RequestParam Map<String,String> form,
                              Model model){
         User user = userRepo.findById(id).orElseThrow();
+        User userFromDB = userRepo.findByUsername(username);
+        if (userFromDB!=null && !username.equals(user.getUsername())){
+            model.addAttribute("userError", "Пользователь c таким логином уже существует");
+            model.addAttribute("user", user);
+            model.addAttribute("roles", Role.values());
+            return "user-edit";
+        }
+
         user.setUsername(username);
         user.setPassword(password);
         user.setFirstName(firstName);
@@ -75,23 +79,36 @@ public class UserController {
                 .map(Role::name)
                 .collect(Collectors.toSet());
 
-        user.getRoles().clear();
+        if (you.getAuthorities().contains(Role.ADMIN)) {
 
-        for(String key : form.keySet()){
-            if (roles.contains(key)){
-                user.getRoles().add(Role.valueOf(key));
+            user.getRoles().clear();
+
+            for (String key : form.keySet()) {
+                if (roles.contains(key)) {
+                    user.getRoles().add(Role.valueOf(key));
+                }
             }
         }
 
         userRepo.save(user);
+
+        if (id == you.getId()){
+            return "redirect:/user/profile";
+        }
         return "redirect:/user";
     }
 
     @GetMapping("/profile")
-    public String getUserInfo(@AuthenticationPrincipal User user,
+    public String getUserProfile(@AuthenticationPrincipal User you,
                               Model model){
+        User user = userRepo.findById(you.getId()).orElseThrow();
         model.addAttribute("user", user);
-        model.addAttribute("groups", user.getInGroups());
+
+        Set<Groupy> groups;
+        if (user.getAuthorities().contains(Role.CURATOR)) groups = user.getOwnGroups();
+        else groups = user.getInGroups();
+
+        model.addAttribute("groups", groups);
         return "user-info";
     }
 

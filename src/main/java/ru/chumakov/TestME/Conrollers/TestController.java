@@ -32,24 +32,49 @@ public class TestController {
     private ResultRepo resultRepo;
 
     @GetMapping
-    public String getTests(Model model){
-        Iterable <Test> tests = testRepo.findAll();
-        model.addAttribute("tests",tests);
+    public String getTests(@AuthenticationPrincipal User user,
+                           Model model){
+        Map<Groupy, ArrayList<Test>> GT = new HashMap<>();
+        Set<Groupy> groups;
+
+        if (user.getAuthorities().contains(Role.CURATOR)) groups = groupyRepo.findAllByOwner(user);
+        else groups = user.getInGroups();
+
+        for (Groupy group : groups) {
+            GT.put(group, new ArrayList<>(testRepo.findAllByFromGroupOrderByCreationDateDesc(group)));
+        }
+        model.addAttribute("GT", GT);
+
+
+        Iterable <Test> testsAll = testRepo.findAllByFromGroupOrderByCreationDateDesc(null);
+        model.addAttribute("tests",testsAll);
+
         model.addAttribute("format", DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
         return "tests";
     }
 
     @GetMapping("/creating")
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
-    public String getTestCreating(Model model){
+    public String getStartTestCreating(Model model){
         return "test-creating";
     }
 
     @PostMapping("/creating")
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
-    public String countOfQuestions(@RequestParam int count,
+    public String getTestCreating(@RequestParam String count,
                           Model model){
-        model.addAttribute("count",count);
+        if(!count.matches("[-+]?\\d+")){
+            model.addAttribute("numberError","Введите число из диапазона 1 - 100");
+            return "test-creating";
+        }
+
+        int count1 = Integer.parseInt(count);
+
+        if (count1 > 100 || count1 < 1){
+            model.addAttribute("numberError","Введите число из диапазона 1 - 100");
+            return "test-creating";
+        }
+        model.addAttribute("count",count1);
         return "test-creating-add";
     }
 
@@ -95,26 +120,68 @@ public class TestController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping("/{id}")
-    public String testGetInfo(@PathVariable(value = "id") Test test,
+    public String getTestInfo(@PathVariable(value = "id") Test test,
                               Model model) {
         if (test==null){
             return "redirect:/test";
         }
-        ArrayList<Test> tests = new ArrayList<>();
+
         ArrayList<Question> questions = new ArrayList<>(questionRepo.findAllByTest(test));
 
         Map<Question,ArrayList<Answer>> questionWithAnswers= new HashMap<>();
         for (int i = 0; i <questions.size() ; i++) {
             questionWithAnswers.put(questions.get(i),new ArrayList<>(answerRepo.findAllByQuestion(questions.get(i))));
         }
-        tests.add(test);
-        model.addAttribute("test", tests);
+
+        model.addAttribute("test", test);
         model.addAttribute("QA",questionWithAnswers);
         return "test-info";
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
+    @PostMapping("/{id}")
+    public String testEditInfo(@PathVariable(value = "id") Test test,
+                               @RequestParam Map<String,String> form,
+                               @RequestParam String name,
+                               Model model) {
+        test.setName(name);
+
+        ArrayList <Question> questions = new ArrayList<>();
+        ArrayList <Answer> answers = new ArrayList<>();
+
+        for (int i = 1; i <= questionRepo.countByTest(test) ; i++) {
+            long qID = Long.parseLong(form.get("q" + i + "id"));
+            String qText = form.get("q" + i);
+
+            Question question = questionRepo.findById(qID).orElseThrow();
+            question.setText(qText);
+
+            questions.add(question);
+
+            for (int j = 1; j <=4 ; j++) {
+                long anID = Long.parseLong(form.get("ans" + j + "q" + i + "id"));
+                String anText = form.get("ans" + j + "q" + i);
+                boolean anCor = form.containsKey("ans" + j + "cor" + i);
+
+                Answer answer = answerRepo.findById(anID).orElseThrow();
+                answer.setText(anText);
+                answer.setCorrect(anCor);
+
+                answers.add(answer);
+            }
+        }
+
+        testRepo.save(test);
+
+        questionRepo.saveAll(questions);
+
+        answerRepo.saveAll(answers);
+
+        return "redirect:/test/" + test.getId();
+    }
+
     @GetMapping("/{id}/pass")
-    public String passingTest(@PathVariable(value = "id") Test test,
+    public String getTestPassing(@PathVariable(value = "id") Test test,
                               Model model) {
         if (test==null){
             return "redirect:/test";
@@ -171,6 +238,26 @@ public class TestController {
         resultRepo.saveAll(resultList);
 
         return "redirect:/results/" + testing.getId();
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
+    @GetMapping("/{id}/results")
+    public String getTestResults(@PathVariable(value = "id") Test test,
+                                Model model) {
+        if (test==null){
+            return "redirect:/test";
+        }
+
+        Set<Testing> testings = testingRepo.findAllByTestOrderByPassDateDesc(test);
+
+        Map<Testing, String> TestingRes = new ControllerUtils().getResults(testings, resultRepo, questionRepo, answerRepo);
+
+        model.addAttribute("testings", testings);
+        model.addAttribute("test", test);
+        model.addAttribute("tRes", TestingRes);
+        model.addAttribute("format", DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+
+        return "test-results";
     }
 
 }

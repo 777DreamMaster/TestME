@@ -5,28 +5,30 @@
     <div th:replace="blocks/head :: head('Создание теста')"></div>
     <body>
     <header th:replace="blocks/header :: header"></header>
-    <div class="container mt-5 mb-5">
+    <div class="container mt-5 mb-5 " >
 
-        <h2>Создание теста</h2><br>
+        <h2>Создание теста</h2>
         <form th:action="@{/test/creating/add}" th:if="${count!=null}" method="post">
             <input type="hidden" name="count" th:value="${count}">
-            <h5>Название</h5>
-            <input type="text" name="name" placeholder="Введите название теста" class="form-control">
 
+            <div class="form-floating mt-3">
+                <input type="text" name="name" id="floatingTest" placeholder="Название теста" class="form-control" required />
+                <label for="floatingTest">Название теста</label>
+            </div>
             <div class="mt-3 mb-3" th:each="i: ${#numbers.sequence(1,count)}">
 
                 <div class="mb-3">
                     <h6 th:text="'Вопрос ' + ${i}"></h6>
-                    <input type="text" th:name="${i}" placeholder="Введите вопрос" class="form-control">
+                    <input type="text" th:name="${i}" placeholder="Введите вопрос" class="form-control" required>
                 </div>
 
-                <div class="ml-4">
+                <div class="ms-4">
                     <h6>Варианты ответов</h6>
                     <table class="table-sub-heading-color mb-3">
                         <tbody>
                             <tr th:each="an: ${#numbers.sequence(1,4)}">
-                                <td><input type="checkbox" th:name="'ans'+${an}+'cor'+${i}" class="mr-3"></td>
-                                <td><input type="text" th:name="'ans'+${an}+'q'+${i}" placeholder="Введите ответ" class="form-control"></td>
+                                <td class="pe-2"><input class="form-check-input" type="checkbox" th:name="'ans'+${an}+'cor'+${i}"></td>
+                                <td><input type="text" th:name="'ans'+${an}+'q'+${i}" placeholder="Введите ответ" class="form-control" required></td>
                             </tr>
                         </tbody>
                     </table>
@@ -36,7 +38,17 @@
 
             <div class="mb-3">
                 <h5>Для какой группы?</h5>
-                <input type="text" name="group" placeholder="Введите код группы. Оставьте пустым если тест для всех." class="form-control">
+
+                <div class="form-floating mt-3" sec:authorize="!hasAuthority('ADMIN')">
+                    <input type="text" name="group" id="floatingGroup" placeholder="Код группы" class="form-control" required>
+                    <label for="floatingGroup">Код группы</label>
+                </div>
+
+                <div class="form-floating mt-3" sec:authorize="hasAuthority('ADMIN')">
+                    <input type="text" name="group" id="floatingGroup2" placeholder="Код группы" class="form-control">
+                    <label for="floatingGroup2">Код группы. Оставьте пустым если тест для всех.</label>
+                </div>
+
             </div>
 
             <button type="submit" class="btn btn-success">Создать</button>

@@ -1,9 +1,8 @@
 package ru.chumakov.TestME.models;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.Set;
 
 @Entity
 public class Test {
@@ -17,6 +16,12 @@ public class Test {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Groupy fromGroup;
+
+    @OneToMany(mappedBy = "test",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private Set<Question> questions;
+
+    @OneToMany(mappedBy = "test",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private Set<Testing> testings;
 
     //constructors
     public Test() {

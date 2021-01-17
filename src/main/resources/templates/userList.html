@@ -9,35 +9,29 @@
         <div class="container mt-5">
 
             <h2>Пользователи</h2>
-<!--            <div th:each="el : ${users}" class="alert alert-info mt-2">-->
-<!--                <h3 th:text=" ${el.name}+ ' ' + ${el.code} "></h3>-->
 
-<!--                <a th:href="'/groups/' + ${el.id} ">Данные для входа</a>-->
-
-<!--            </div>-->
-            <table>
+            <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Username</th>
-                        <th>Role</th>
+                        <th scope="col">#</th>
+                        <th scope="col">Имя</th>
+                        <th scope="col">Фамилия</th>
+                        <th scope="col">Роли</th>
+                        <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="el: ${users}" class="alert alert-info mt-2">
-                        <td th:text="${el.username}"></td>
-<!--                        <td th:each="i: ${el.roles}">-->
+                    <tr th:each="el, i: ${users}" class="alert alert-info mt-2">
+                        <th scope="row" th:text="${i.index+1}"></th>
+                        <td th:text="${el.firstName}"></td>
+                        <td th:text="${el.lastName}"></td>
                         <td>
-<!--                            <div th:text="${i}">></div>-->
                             <div th:text="${el.roles}"></div>
                         </td>
                         <td>
                             <a th:href="'/user/' + ${el.id} + '/edit'" class="btn btn-warning">Редактировать</a>
                         </td>
-                        <td>
-                            <form th:action="@{/user}" method="post">
-                                <button type="submit" th:value="${el.id}" name="id" class="btn btn-danger">Удалить</button>
-                            </form>
-                        </td>
+
                     </tr>
                 </tbody>
             </table>

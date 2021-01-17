@@ -22,6 +22,12 @@ public class User implements UserDetails {
     private String username;
     private String password;
 
+    @OneToMany(mappedBy = "owner",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private Set<Groupy> ownGroups;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private Set<Testing> testings;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "belong",
@@ -29,6 +35,8 @@ public class User implements UserDetails {
             inverseJoinColumns = {@JoinColumn(name = "group_id")}
     )
     private Set<Groupy> inGroups;
+
+
 
     private boolean active;
 
@@ -111,6 +119,14 @@ public class User implements UserDetails {
 
     public void setInGroups(Set<Groupy> inGroups) {
         this.inGroups = inGroups;
+    }
+
+    public Set<Groupy> getOwnGroups() {
+        return ownGroups;
+    }
+
+    public void setOwnGroups(Set<Groupy> ownGroups) {
+        this.ownGroups = ownGroups;
     }
 
     //UserDetails

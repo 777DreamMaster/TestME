@@ -10,9 +10,10 @@
 
             <h2>Группы</h2>
             <div th:each="el : ${groups}" class="alert alert-info mt-2">
-                <h3 th:text=" ${el.name}+ ' ' + ${el.code} "></h3>
-
-                <a th:href="'/groups/' + ${el.id} ">Данные для входа</a>
+                <h3 th:text="${el.name}"></h3>
+                <h5 th:if="${!el.owner.equals(you)}" th:text="'Владелец: ' + ${el.owner.firstName} + ' ' + ${el.owner.lastName}"></h5>
+                <h5 th:if="${el.owner.equals(you)}" th:text="'Владелец: Вы' "></h5>
+                <a class="text-decoration-none" th:href="'/groups/' + ${el.id} ">Данные группы</a>
 
             </div>
         </div>
