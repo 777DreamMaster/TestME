@@ -9,20 +9,38 @@
         <div class="container mt-5 mb-5">
             <h2>Редактирвание данных пользователя</h2>
 
-            <div th:each="el : ${user}">
-                <form th:action="'/user/' + ${el.id} + '/edit'" th:method="post">
-                    <input type="text" th:value="${el.username}" name="username" placeholder="Введите username" class="form-control"><br>
-                    <input type="text" th:value="${el.password}" name="password" placeholder="Введите пароль" class="form-control"><br>
-                    <input type="text" th:value="${el.firstName}" name="firstName" placeholder="Введите имя" class="form-control"><br>
-                    <input type="text" th:value="${el.lastName}" th:name="lastName" placeholder="Введите фамилию" class="form-control">
-                    <div class="my-2">
-                        <th:block  sec:authorize="hasAuthority('ADMIN')" th:each="role : ${roles}">
-                            <label><input type="checkbox" th:name="${role}" th:text="${role}"
-                                          th:checked="${el.roles.contains(role)}">
-                            </label><br>
-                        </th:block>
+            <div>
+                <form th:action="'/user/' + ${user.id} + '/edit'" th:method="post">
+
+                    <div class="form-floating mt-4">
+                        <input type="text" th:value="${user.username}" name="username" id="floatingUsername" placeholder="Логин" class="form-control" required/>
+                        <label for="floatingUsername">Логин</label>
+
+                        <div class="text-danger" th:text="${userError}"
+                             th:if="${userError!=null}">
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-success" > Обновить</button>
+
+                    <div class="form-floating mt-4">
+                        <input type="text" th:value="${user.password}" name="password" id="floatingPassword" placeholder="Пароль" class="form-control" required/>
+                        <label for="floatingPassword">Пароль</label>
+                    </div>
+
+                    <div class="form-floating mt-4">
+                        <input type="text" th:value="${user.firstName}" name="firstName" id="floatingFirstName" placeholder="Имя" class="form-control" required/>
+                        <label for="floatingFirstName">Имя</label>
+                    </div>
+
+                    <div class="form-floating mt-4">
+                        <input type="text" th:value="${user.lastName}" name="lastName" id="floatingLastName" placeholder="Фамилия" class="form-control" required/>
+                        <label for="floatingLastName">Фамилия</label>
+                    </div>
+
+                    <div class="form-check mt-3 ms-3" sec:authorize="hasAuthority('ADMIN')" th:each="role : ${roles}">
+                        <input class="form-check-input" type="checkbox" th:name="${role}" th:text="${role}" th:checked="${user.roles.contains(role)}">
+                    </div>
+
+                    <button type="submit" class="btn btn-success mt-3">Обновить</button>
                 </form>
             </div>
 

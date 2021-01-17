@@ -7,41 +7,43 @@
         <header th:replace="blocks/header :: header"></header>
 
         <div class="container mt-5">
+            <h2>Редактирование теста</h2>
             <form th:action="'/test/' + ${test.id}" method="post">
                 <div class="alert alert-info mt-2">
 
                     <h5>Название</h5>
-                    <input type="text" th:name="name" th:value="${test.name}" placeholder="Введите название теста" class="form-control">
+                    <input type="text" th:name="name" th:value="${test.name}" placeholder="Введите название теста" class="form-control" required>
 
                     <p th:if="${test.fromGroup!=null}">
                         <b>Принадлежит группе: </b><span th:text="${test.fromGroup.name} + ' Пользователя: ' + ${test.fromGroup.owner.username}"></span>
                     </p>
 
-                    <div>
-                            <div class="mt-3 mb-3" th:each="q , i: ${QA.keySet()}">
 
-                                <div class="mb-3">
-                                    <h6 th:text="'Вопрос ' + ${i.index + 1}"></h6>
-                                    <input type="text" th:name="'q' + ${i.index + 1}" th:value="${q.text}" placeholder="Введите вопрос" class="form-control">
-                                    <input type="hidden" th:name="'q' + ${i.index + 1} + 'id'" th:value="${q.id}">
-                                </div>
+                    <div class="mt-3 mb-3" th:each="q , i: ${QA.keySet()}">
 
-                                <div class="ml-4">
-                                    <h6>Варианты ответов</h6>
-                                    <table class="table-sub-heading-color mb-3">
-                                        <tbody>
-                                        <tr th:each="an, j: ${QA.get(q)}">
-                                            <td><input type="checkbox" th:name="'ans' + ${j.index + 1} + 'cor' + ${i.index + 1}" class="mr-3" th:checked="${an.correct}"></td>
-                                            <td><input type="text" th:name="'ans' + ${j.index + 1} + 'q' + ${i.index + 1}" th:value="${an.text}" placeholder="Введите ответ" class="form-control"></td>
-                                                <input type="hidden" th:name="'ans' + ${j.index + 1} + 'q' + ${i.index + 1} + 'id'" th:value="${an.id}">
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                        <div class="mb-3">
+                            <h5 th:text="'Вопрос ' + ${i.index + 1}"></h5>
+                            <input type="text" th:name="'q' + ${i.index + 1}" th:value="${q.text}" placeholder="Введите вопрос" class="form-control" required>
+                            <input type="hidden" th:name="'q' + ${i.index + 1} + 'id'" th:value="${q.id}">
+                        </div>
 
+                        <div class="ms-4">
+                            <h6>Варианты ответов</h6>
+                            <table class="table-sub-heading-color mb-3">
+                                <tbody>
+                                <tr th:each="an, j: ${QA.get(q)}">
+                                    <td class="pe-2"><input type="checkbox" th:name="'ans' + ${j.index + 1} + 'cor' + ${i.index + 1}"
+                                                            class="form-check-input" th:checked="${an.correct}">
+                                    </td>
+                                    <td><input type="text" th:name="'ans' + ${j.index + 1} + 'q' + ${i.index + 1}" th:value="${an.text}" placeholder="Введите ответ" class="form-control" required></td>
+                                        <input type="hidden" th:name="'ans' + ${j.index + 1} + 'q' + ${i.index + 1} + 'id'" th:value="${an.id}">
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
-                            </div>
                     </div>
+
                     <button type="submit" class="btn btn-success">Сохранить</button>
                 </div>
             </form>

@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface TestRepo extends CrudRepository<Test, Long> {
     List<Test> findAllByFromGroup (Groupy groupy);
+    List<Test> findAllByFromGroupOrderByCreationDateDesc (Groupy groupy);
 }

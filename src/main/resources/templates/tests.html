@@ -15,12 +15,16 @@
                    <h2 th:text="${group.name}"></h2>
 
                    <div th:each="test : ${GT.get(group)}" class="alert alert-info mt-2">
-                       <h4 th:text=" ${test.name}+ ' от ' + ${test.creationDate.format(format)}"></h4>
+                       <h4 th:text=" ${test.name}"></h4>
+                       <h6 th:text="'Дата создания: ' + ${test.creationDate.format(format)}"></h6>
 
-                       <a th:href="'/test/' + ${test.id}" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')">Просмотреть тест</a><br>
+                       <div class="mb-2">
+                            <a class="text-decoration-none" th:href="'/test/' + ${test.id}" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')">Просмотреть тест</a>
+                       </div>
+
                        <a th:href="'/test/' + ${test.id} + '/results'" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')" class="btn btn-secondary">Результаты</a>
-                       <a class="btn btn-info" th:href="'/test/' + ${test.id} + '/pass'"
-                          sec:authorize="!hasAnyAuthority('ADMIN','CURATOR')">Пройти тест</a>
+
+                       <a class="btn btn-info" th:href="'/test/' + ${test.id} + '/pass'" sec:authorize="!hasAnyAuthority('ADMIN','CURATOR')">Пройти тест</a>
                    </div>
 
                </div>
@@ -28,10 +32,16 @@
             <div sec:authorize="!hasAuthority('CURATOR')||hasAuthority('ADMIN')">
                 <h2>Общие тесты</h2>
                 <div th:each="el : ${tests}" class="alert alert-info mt-2">
-                    <h4 th:text=" ${el.name}+ ' от ' + ${el.creationDate.format(format)}"></h4>
 
-                    <a th:href="'/test/' + ${el.id}" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')">Просмотреть тест</a><br>
+                    <h4 th:text=" ${el.name}"></h4>
+                    <h6 th:text="'Дата создания: ' + ${el.creationDate.format(format)}"></h6>
+
+                    <div class="mb-2">
+                        <a class="text-decoration-none" th:href="'/test/' + ${el.id}" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')">Просмотреть тест</a>
+                    </div>
+
                     <a th:href="'/test/' + ${el.id} + '/results'" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')" class="btn btn-secondary">Результаты</a>
+
                     <a class="btn btn-info" th:href="'/test/' + ${el.id} + '/pass'" sec:authorize="!hasAnyAuthority('ADMIN','CURATOR')">Пройти тест</a>
                 </div>
 

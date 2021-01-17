@@ -6,14 +6,15 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.chumakov.TestME.models.*;
+import ru.chumakov.TestME.models.Groupy;
+import ru.chumakov.TestME.models.Role;
+import ru.chumakov.TestME.models.User;
 import ru.chumakov.TestME.repos.GroupyRepo;
-import ru.chumakov.TestME.repos.ResultRepo;
-import ru.chumakov.TestME.repos.TestingRepo;
 import ru.chumakov.TestME.repos.UserRepo;
 
-import javax.sound.midi.Soundbank;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -27,30 +28,14 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public String userList (Model model){
+    public String getUserList (Model model){
         model.addAttribute("users",userRepo.findAll());
 
         return "userList";
     }
 
-    /*@PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping
-    public String userDelete(@RequestParam long id, Model model){
-        User user = userRepo.findById(id).orElseThrow();
-        List<Testing> testings = testingRepo.findAllByUser(user);
-
-        Set<Result> results = new HashSet<>();
-        for (Testing testing: testings) {
-            results.addAll(resultRepo.findAllByTesting(testing));
-        }
-        resultRepo.deleteAll(results);
-        userRepo.delete(user);
-        return "redirect:/user";
-    }*/
-
-
     @GetMapping("/{id}/edit")
-    public String editUser(@AuthenticationPrincipal User you,
+    public String getUserEdit(@AuthenticationPrincipal User you,
                            @PathVariable(value = "id") long id,
                            Model model) {
         if (!userRepo.existsById(id)){
@@ -59,10 +44,9 @@ public class UserController {
         if (you.getId()!=id && !you.getAuthorities().contains(Role.ADMIN)){
             return "redirect:/user/"+you.getId()+"/edit";
         }
-        Optional<User> user = userRepo.findById(id);
-        ArrayList<User> list = new ArrayList<>();
-        user.ifPresent(list::add);
-        model.addAttribute("user", list);
+        User user = userRepo.findById(id).orElseThrow();
+
+        model.addAttribute("user", user);
         model.addAttribute("roles", Role.values());
         return "user-edit";
     }
@@ -78,6 +62,14 @@ public class UserController {
                              @RequestParam Map<String,String> form,
                              Model model){
         User user = userRepo.findById(id).orElseThrow();
+        User userFromDB = userRepo.findByUsername(username);
+        if (userFromDB!=null && !username.equals(user.getUsername())){
+            model.addAttribute("userError", "Пользователь c таким логином уже существует");
+            model.addAttribute("user", user);
+            model.addAttribute("roles", Role.values());
+            return "user-edit";
+        }
+
         user.setUsername(username);
         user.setPassword(password);
         user.setFirstName(firstName);
@@ -107,7 +99,7 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public String getUserInfo(@AuthenticationPrincipal User you,
+    public String getUserProfile(@AuthenticationPrincipal User you,
                               Model model){
         User user = userRepo.findById(you.getId()).orElseThrow();
         model.addAttribute("user", user);

@@ -8,13 +8,15 @@
 
         <div class="container mt-5">
 
-            <h2 th:text="'Результаты теста: ' + ${test.name}"></h2>
+            <h2>Результаты</h2>
+            <h4 th:text="'Участник: ' + ${user.firstName} + ' ' + ${user.lastName}"></h4>
+            <h4 th:text="'Группа: ' + ${group.name}"></h4>
 
             <table class="table table-hover">
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Пользователь</th>
+                        <th scope="col">Тест</th>
                         <th scope="col">Дата выполнения</th>
                         <th scope="col">Результат</th>
                     </tr>
@@ -24,8 +26,7 @@
                         <th scope="row" th:text="${i.index + 1}"></th>
                         <td>
                             <a th:href="${'/results/' + testing.id}"
-                               th:text="${testing.user.firstName} + ' ' + ${testing.user.lastName}"
-                                class="text-decoration-none text-dark">
+                               th:text="${testing.test.name}" class="text-decoration-none text-dark">
 
                             </a>
                         </td>

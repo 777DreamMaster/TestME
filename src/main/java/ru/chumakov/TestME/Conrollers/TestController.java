@@ -41,12 +41,12 @@ public class TestController {
         else groups = user.getInGroups();
 
         for (Groupy group : groups) {
-            GT.put(group, new ArrayList<>(testRepo.findAllByFromGroup(group)));
+            GT.put(group, new ArrayList<>(testRepo.findAllByFromGroupOrderByCreationDateDesc(group)));
         }
         model.addAttribute("GT", GT);
 
 
-        Iterable <Test> testsAll = testRepo.findAllByFromGroup(null);
+        Iterable <Test> testsAll = testRepo.findAllByFromGroupOrderByCreationDateDesc(null);
         model.addAttribute("tests",testsAll);
 
         model.addAttribute("format", DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
@@ -55,15 +55,26 @@ public class TestController {
 
     @GetMapping("/creating")
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
-    public String getTestCreating(Model model){
+    public String getStartTestCreating(Model model){
         return "test-creating";
     }
 
     @PostMapping("/creating")
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
-    public String countOfQuestions(@RequestParam int count,
+    public String getTestCreating(@RequestParam String count,
                           Model model){
-        model.addAttribute("count",count);
+        if(!count.matches("[-+]?\\d+")){
+            model.addAttribute("numberError","Введите число из диапазона 1 - 100");
+            return "test-creating";
+        }
+
+        int count1 = Integer.parseInt(count);
+
+        if (count1 > 100 || count1 < 1){
+            model.addAttribute("numberError","Введите число из диапазона 1 - 100");
+            return "test-creating";
+        }
+        model.addAttribute("count",count1);
         return "test-creating-add";
     }
 
@@ -109,7 +120,7 @@ public class TestController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping("/{id}")
-    public String testGetInfo(@PathVariable(value = "id") Test test,
+    public String getTestInfo(@PathVariable(value = "id") Test test,
                               Model model) {
         if (test==null){
             return "redirect:/test";
@@ -170,7 +181,7 @@ public class TestController {
     }
 
     @GetMapping("/{id}/pass")
-    public String passingTest(@PathVariable(value = "id") Test test,
+    public String getTestPassing(@PathVariable(value = "id") Test test,
                               Model model) {
         if (test==null){
             return "redirect:/test";
@@ -238,38 +249,11 @@ public class TestController {
         }
 
         Set<Testing> testings = testingRepo.findAllByTestOrderByPassDateDesc(test);
-        HashMap<Testing , String> TestingRes = new HashMap<>();
-        for (Testing testing : testings) {
 
-            long correctCountUser = 0;
-            long correctCountTest = 0;
-
-            Set<Result> resultsSet = resultRepo.findAllByTesting(testing);
-
-            for (Result result: resultsSet) {
-                if (result.getAnswer().isCorrect())
-                    correctCountUser++;
-            }
-
-            ArrayList<Question> questions = new ArrayList<>(questionRepo.findAllByTest(test));
-            for (int i = 0; i <questions.size() ; i++) {
-                correctCountTest+=answerRepo.countByQuestionAndCorrect(questions.get(i),true);
-            }
-            TestingRes.put(testing, correctCountUser + "/" + correctCountTest);
-        }
-/*
-        ArrayList<Question> questions = new ArrayList<>(questionRepo.findAllByTest(test));
-
-        Map<Question,ArrayList<Answer>> questionWithAnswers= new HashMap<>();
-        for (int i = 0; i <questions.size() ; i++) {
-            questionWithAnswers.put(questions.get(i),new ArrayList<>(answerRepo.findAllByQuestion(questions.get(i))));
-        }
-
-        model.addAttribute("test", test);
-        model.addAttribute("QA",questionWithAnswers);
-*/
+        Map<Testing, String> TestingRes = new ControllerUtils().getResults(testings, resultRepo, questionRepo, answerRepo);
 
         model.addAttribute("testings", testings);
+        model.addAttribute("test", test);
         model.addAttribute("tRes", TestingRes);
         model.addAttribute("format", DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
 

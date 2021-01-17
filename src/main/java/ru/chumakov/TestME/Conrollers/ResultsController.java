@@ -45,32 +45,29 @@ public class ResultsController {
         Testing testing = testingRepo.findById(id).orElseThrow();
         Test test = testing.getTest();
 
-        long correctCountUser = 0;
-        long correctCountTest = 0;
-
         Set<Result> resultsSet = resultRepo.findAllByTesting(testing);
         Set<Answer> myAnswers = new HashSet<>();
         for (Result result: resultsSet) {
             myAnswers.add(result.getAnswer());
-            if (result.getAnswer().isCorrect())
-                correctCountUser++;
         }
 
         ArrayList<Question> questions = new ArrayList<>(questionRepo.findAllByTest(test));
-
         Map<Question,ArrayList<Answer>> questionWithAnswers= new HashMap<>();
-        for (int i = 0; i <questions.size() ; i++) {
+
+        for (int i = 0; i < questions.size() ; i++) {
             questionWithAnswers.put(questions.get(i),new ArrayList<>(answerRepo.findAllByQuestion(questions.get(i))));
-            correctCountTest+=answerRepo.countByQuestionAndCorrect(questions.get(i),true);
         }
+
+        Set <Testing> testings= new HashSet<>();
+        testings.add(testing);
+        Map<Testing, String> TestingRes = new ControllerUtils().getResults(testings,resultRepo,questionRepo,answerRepo);
 
         model.addAttribute("testing", testing);
         model.addAttribute("test", test);
         model.addAttribute("myAnswers", myAnswers);
         model.addAttribute("QA",questionWithAnswers);
         model.addAttribute("format", DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
-        model.addAttribute("correctCountUser", correctCountUser);
-        model.addAttribute("correctCountTest", correctCountTest);
+        model.addAttribute("tRes", TestingRes.get(testing));
 
         return "current-result";
     }

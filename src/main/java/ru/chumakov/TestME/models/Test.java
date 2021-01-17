@@ -18,7 +18,7 @@ public class Test {
     private Groupy fromGroup;
 
     @OneToMany(mappedBy = "test",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    private Set<Question> questions ;
+    private Set<Question> questions;
 
     @OneToMany(mappedBy = "test",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private Set<Testing> testings;

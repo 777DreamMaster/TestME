@@ -9,12 +9,7 @@
         <div class="container mt-5">
 
             <h2>Пользователи</h2>
-<!--            <div th:each="el : ${users}" class="alert alert-info mt-2">-->
-<!--                <h3 th:text=" ${el.name}+ ' ' + ${el.code} "></h3>-->
 
-<!--                <a th:href="'/groups/' + ${el.id} ">Данные для входа</a>-->
-
-<!--            </div>-->
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -36,11 +31,7 @@
                         <td>
                             <a th:href="'/user/' + ${el.id} + '/edit'" class="btn btn-warning">Редактировать</a>
                         </td>
-<!--                        <td>-->
-<!--                            <form th:action="@{/user}" method="post">-->
-<!--                                <button type="submit" th:value="${el.id}" name="id" class="btn btn-danger">Удалить</button>-->
-<!--                            </form>-->
-<!--                        </td>-->
+
                     </tr>
                 </tbody>
             </table>

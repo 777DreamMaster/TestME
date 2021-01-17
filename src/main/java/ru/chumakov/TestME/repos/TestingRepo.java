@@ -13,4 +13,5 @@ public interface TestingRepo extends CrudRepository<Testing, Long> {
     List<Testing> findAllByUser(User user);
     List<Testing> findAllByUserOrderByPassDateDesc(User user);
     Set<Testing> findAllByTestOrderByPassDateDesc(Test test);
+    Set<Testing> findAllByTestAndUserOrderByPassDateDesc(Test test, User user);
 }

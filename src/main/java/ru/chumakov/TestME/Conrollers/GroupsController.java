@@ -6,12 +6,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.chumakov.TestME.models.Groupy;
-import ru.chumakov.TestME.models.User;
-import ru.chumakov.TestME.repos.GroupyRepo;
+import ru.chumakov.TestME.models.*;
+import ru.chumakov.TestME.repos.*;
 
-import java.util.ArrayList;
-import java.util.Optional;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Controller
 @RequestMapping("/groups")
@@ -19,18 +18,30 @@ public class GroupsController {
 
     @Autowired
     private GroupyRepo groupyRepo;
+    @Autowired
+    private TestRepo testRepo;
+    @Autowired
+    private QuestionRepo questionRepo;
+    @Autowired
+    private AnswerRepo answerRepo;
+    @Autowired
+    private TestingRepo testingRepo;
+    @Autowired
+    private ResultRepo resultRepo;
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public String getGroups(Model model) {
+    public String getGroups(@AuthenticationPrincipal User you,
+                            Model model) {
         Iterable <Groupy> groups = groupyRepo.findAll();
+        model.addAttribute("you", you);
         model.addAttribute("groups",groups);
         return "groups";
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping("/add")
-    public String groupAdd(Model model) {
+    public String getGroupAdd(Model model) {
         return "groups-add";
     }
 
@@ -39,76 +50,115 @@ public class GroupsController {
     public String groupPost(@AuthenticationPrincipal User user,
                             @RequestParam String name,
                             @RequestParam String code, Model model){
+        Groupy groupFromDB = groupyRepo.findByCode(code);
+        if (groupFromDB!=null){
+            model.addAttribute("groupError", "Группа c таким кодом уже существует");
+            return "groups-add";
+        }
+
         Groupy groupy = new Groupy(name, code, user);
         groupyRepo.save(groupy);
-        return "redirect:/groups";
+        return "redirect:/groups/" + groupy.getId();
+
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping("/{id}")
-    public String groupGetInfo(@PathVariable(value = "id") Groupy group, Model model) {
+    public String getGroupInfo(@PathVariable(value = "id") Groupy group, Model model) {
 
         if (group==null){
-            return "redirect:/groups";
+            return "redirect:/";
         }
-        ArrayList<Groupy> list = new ArrayList<>();
-        list.add(group);
 
-        model.addAttribute("group", list);
-        model.addAttribute("users",group.getContainsUsers());
+        model.addAttribute("group", group);
+        model.addAttribute("users", group.getContainsUsers());
         return "groups-info";
     }
 
-    /*@PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
-    @PostMapping("/remove")
-    public String groupDelete(@RequestParam long id, Model model){
-        Groupy groupy = groupyRepo.findById(id).orElseThrow();
-        System.out.println(groupy.getName());
-        groupyRepo.delete(groupy);
-        return "redirect:/groups";
-    }*/
-
     @GetMapping("/join")
-    public String getGroupJoin(){
+    public String getGroupJoin(Model model){
+        Iterable<Groupy> groups = groupyRepo.findAll();
+        model.addAttribute("groups",groups);
         return "join-group";
     }
 
     @PostMapping("/join")
     public String groupJoin(@AuthenticationPrincipal User user,
-                            @RequestParam String code){
+                            @RequestParam String code,
+                            @RequestParam Long group,
+                            Model model){
         Groupy groupy = groupyRepo.findByCode(code);
-        if (groupy==null){
-            return "redirect:/";
+        Groupy groupBySelected = groupyRepo.findById(group).orElse(null);
+
+        if (groupy == null || !groupy.equals(groupBySelected)){
+            model.addAttribute("groupError","Неверный код группы");
+            Iterable<Groupy> groups = groupyRepo.findAll();
+            model.addAttribute("groups",groups);
+            return "join-group";
         }
         groupy.getContainsUsers().add(user);
         user.getInGroups().add(groupy);
         groupyRepo.save(groupy);
-        return "redirect:/";
+        return "redirect:/test";
     }
     
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping("/{id}/edit")
-    public String groupEdit(@PathVariable(value = "id") long id, Model model) {
+    public String getGroupEdit(@PathVariable(value = "id") long id,
+                            Model model) {
         if (!groupyRepo.existsById(id)){
             return "redirect:/groups";
         }
 
-        Optional<Groupy> group = groupyRepo.findById(id);
-        ArrayList<Groupy> list = new ArrayList<>();
-        group.ifPresent(list::add);
-        model.addAttribute("group", list);
+        Groupy group = groupyRepo.findById(id).orElseThrow();
+
+        model.addAttribute("group", group);
         return "group-edit";
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @PostMapping("/{id}/edit")
-    public String groupUpdate(@PathVariable(value = "id") long id, @RequestParam String name,
-                              @RequestParam String code, Model model){
-        Groupy groupy = groupyRepo.findById(id).orElseThrow();
-        groupy.setName(name);
-        groupy.setCode(code);
-        groupyRepo.save(groupy);
-        return "redirect:/groups";
+    public String groupUpdate(@PathVariable(value = "id") long id,
+                              @RequestParam String name,
+                              @RequestParam String code,
+                              Model model){
+        Groupy group = groupyRepo.findById(id).orElseThrow();
+        Groupy groupFromDB = groupyRepo.findByCode(code);
+
+        if (groupFromDB!=null && !code.equals(group.getCode())){
+            model.addAttribute("group", group);
+            model.addAttribute("groupError", "Группа c таким кодом уже существует");
+            return "group-edit";
+        }
+
+        group.setName(name);
+        group.setCode(code);
+        groupyRepo.save(group);
+        return "redirect:/groups/" + id;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
+    @GetMapping("/{group}/results/{user}")
+    public String getUserGroupResults(@PathVariable(value = "group") Groupy group,
+                                        @PathVariable(value = "user") User user,
+                                        Model model) {
+        if (group == null || user == null){
+            return "redirect:/";
+        }
+        List<Test> tests = testRepo.findAllByFromGroup(group);
+        Set<Testing> testings = new HashSet<>();
+        for (Test test : tests) {
+            testings.addAll(testingRepo.findAllByTestAndUserOrderByPassDateDesc(test,user));
+        }
+
+        Map<Testing, String> TestingRes = new ControllerUtils().getResults(testings, resultRepo, questionRepo, answerRepo);
+
+        model.addAttribute("group", group);
+        model.addAttribute("user", user);
+        model.addAttribute("tRes", TestingRes);
+        model.addAttribute("format", DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+        model.addAttribute("testings", testings);
+        return "userByGroup-results";
     }
 
 }

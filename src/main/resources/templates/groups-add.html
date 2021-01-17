@@ -9,10 +9,22 @@
         <div class="container mt-5 mb-5">
             <h2>Добавить группу</h2>
             <form th:action="@{/groups/add}" method="post">
-                <input type="text" name="name" placeholder="Введите название группы" class="form-control"><br>
-                <input type="text" name="code" placeholder="Введите код группы" class="form-control"><br>
 
-                <button type="submit" class="btn btn-success">Добавить Группу</button>
+                <div class="form-floating mt-4">
+                    <input type="text" name="name" id="floatingName" placeholder="Название группы" class="form-control" required />
+                    <label for="floatingName">Название группы</label>
+                </div>
+
+                <div class="form-floating mt-4">
+                    <input type="text" name="code" id="floatingCode" placeholder="Код группы" class="form-control" required/>
+                    <label for="floatingCode">Код группы</label>
+
+                    <div class="text-danger" th:text="${groupError}"
+                         th:if="${groupError!=null}">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success mt-3">Добавить Группу</button>
             </form>
 
         </div>
