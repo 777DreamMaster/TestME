@@ -1,7 +1,6 @@
 package ru.chumakov.TestME.models;
 
 import javax.persistence.*;
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 @Entity

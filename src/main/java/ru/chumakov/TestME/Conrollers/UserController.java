@@ -114,8 +114,7 @@ public class UserController {
 
     @PostMapping("/profile")
     public String leftGroup(@AuthenticationPrincipal User user,
-                              @RequestParam long id,
-                              Model model){
+                              @RequestParam long id){
         Groupy group = groupyRepo.findById(id).orElseThrow();
 
         user.getInGroups().remove(group);

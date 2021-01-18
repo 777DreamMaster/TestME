@@ -41,7 +41,7 @@ public class GroupsController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping("/add")
-    public String getGroupAdd(Model model) {
+    public String getGroupAdd() {
         return "groups-add";
     }
 

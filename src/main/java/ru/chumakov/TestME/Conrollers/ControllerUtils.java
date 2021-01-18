@@ -26,11 +26,12 @@ public class ControllerUtils {
             }
             boolean f;
             ArrayList<Question> questions = new ArrayList<>(questionRepo.findAllByTest(testing.getTest()));
-            for (int i = 0; i < questions.size(); i++) {
+            for (Question question : questions) {
                 f = true;
-                for (Answer answer : answerRepo.findAllByQuestion(questions.get(i))) {
-                    if ((answer.isCorrect() && !QA.contains(answer)) || (!answer.isCorrect() && QA.contains(answer))){
-                        f=false; break;
+                for (Answer answer : answerRepo.findAllByQuestion(question)) {
+                    if ((answer.isCorrect() && !QA.contains(answer)) || (!answer.isCorrect() && QA.contains(answer))) {
+                        f = false;
+                        break;
                     }
                 }
                 if (f)

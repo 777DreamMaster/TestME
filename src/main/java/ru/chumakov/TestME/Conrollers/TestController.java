@@ -55,7 +55,7 @@ public class TestController {
 
     @GetMapping("/creating")
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
-    public String getStartTestCreating(Model model){
+    public String getStartTestCreating(){
         return "test-creating";
     }
 
@@ -83,8 +83,7 @@ public class TestController {
     public String addTest(@RequestParam Map<String,String> form,
                           @RequestParam String name,
                           @RequestParam String group,
-                          @RequestParam int count,
-                          Model model){
+                          @RequestParam int count){
         LocalDateTime date = LocalDateTime.now();
         Test test;
         if (group.isBlank()){
@@ -142,8 +141,7 @@ public class TestController {
     @PostMapping("/{id}")
     public String testEditInfo(@PathVariable(value = "id") Test test,
                                @RequestParam Map<String,String> form,
-                               @RequestParam String name,
-                               Model model) {
+                               @RequestParam String name) {
         test.setName(name);
 
         ArrayList <Question> questions = new ArrayList<>();
@@ -204,8 +202,7 @@ public class TestController {
     @PostMapping("/{id}/pass")
     public String sendTestResults(@PathVariable(value = "id") Test test,
                                   @AuthenticationPrincipal User user,
-                                  @RequestParam Map<String,String> form,
-                                  Model model) {
+                                  @RequestParam Map<String,String> form) {
         Testing testing = new Testing(LocalDateTime.now(),test,user);
 
         testingRepo.save(testing);
