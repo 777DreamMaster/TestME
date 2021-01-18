@@ -32,7 +32,7 @@
                                     </td>
                                     <td th:text="${an.text}" sec:authorize="!hasAnyAuthority('ADMIN','CURATOR')"></td>
 
-                                    <td width="200" th:text="${an.text}" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')"
+                                    <td th:width="${an.text.length()*10}" th:text="${an.text}" sec:authorize="hasAnyAuthority('ADMIN','CURATOR')"
                                         th:class="${an.correct && myAnswers.contains(an)} ? 'bg-success text-light fw-bold' :
                                                 (${an.correct && !myAnswers.contains(an)} ? 'bg-success text-danger fw-bold' )"
                                         th:classappend="${!an.correct && myAnswers.contains(an)} ? 'text-light bg-danger fw-bold'">

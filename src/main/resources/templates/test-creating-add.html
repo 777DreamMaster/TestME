@@ -39,15 +39,14 @@
             <div class="mb-3">
                 <h5>Для какой группы?</h5>
 
-                <div class="form-floating mt-3" sec:authorize="!hasAuthority('ADMIN')">
-                    <input type="text" name="group" id="floatingGroup" placeholder="Код группы" class="form-control" required>
-                    <label for="floatingGroup">Код группы</label>
-                </div>
+                <select class="form-select" name="group" sec:authorize="!hasAuthority('ADMIN')">
+                    <option th:each="group : ${groups}" th:text="${group.name}" th:value="${group.id}"></option>
+                </select>
 
-                <div class="form-floating mt-3" sec:authorize="hasAuthority('ADMIN')">
-                    <input type="text" name="group" id="floatingGroup2" placeholder="Код группы" class="form-control">
-                    <label for="floatingGroup2">Код группы. Оставьте пустым если тест для всех.</label>
-                </div>
+                <select class="form-select" name="group" sec:authorize="hasAuthority('ADMIN')">
+                    <option selected th:value="${-1}">Для всех</option>
+                    <option th:each="group : ${groups}" th:text="${group.name}" th:value="${group.id}"></option>
+                </select>
 
             </div>
 

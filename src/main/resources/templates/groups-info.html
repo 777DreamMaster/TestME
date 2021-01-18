@@ -11,9 +11,7 @@
                 <h3 th:text=" ${group.name}"></h3>
                 <p><b>Код группы: </b><span th:text="${group.code}"></span></p>
                 <a th:href="'/groups/' + ${group.id} + '/edit'" class="btn btn-warning mb-3">Редактировать</a>
-<!--                <form th:action="@{/groups/remove}" method="post">-->
-<!--                    <button type="submit" th:value="${el.id}" name="id" class="btn btn-danger">Удалить</button>-->
-<!--                </form>-->
+
                 <h3 class="my-4">Участники</h3>
 
                 <div th:if="${!users.isEmpty()}" class="list-group">

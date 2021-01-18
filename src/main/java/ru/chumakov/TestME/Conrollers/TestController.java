@@ -61,8 +61,9 @@ public class TestController {
 
     @PostMapping("/creating")
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
-    public String getTestCreating(@RequestParam String count,
-                          Model model){
+    public String getTestCreating(@AuthenticationPrincipal User user,
+                                  @RequestParam String count,
+                                  Model model){
         if(!count.matches("[-+]?\\d+")){
             model.addAttribute("numberError","Введите число из диапазона 1 - 100");
             return "test-creating";
@@ -74,23 +75,25 @@ public class TestController {
             model.addAttribute("numberError","Введите число из диапазона 1 - 100");
             return "test-creating";
         }
+
+        Set<Groupy> groups = groupyRepo.findAllByOwner(user);
+        model.addAttribute("groups", groups);
         model.addAttribute("count",count1);
         return "test-creating-add";
     }
 
     @PostMapping("/creating/add")
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
-    public String addTest(@RequestParam Map<String,String> form,
+    public String addTest(@AuthenticationPrincipal User user,
+                          @RequestParam Map<String,String> form,
                           @RequestParam String name,
-                          @RequestParam String group,
+                          @RequestParam Long group,
                           @RequestParam int count){
         LocalDateTime date = LocalDateTime.now();
         Test test;
-        if (group.isBlank()){
-            test = new Test(name, date);
-        } else {
-            test = new Test(name, date, groupyRepo.findByCode(group));
-        }
+
+        test = new Test(name, date, groupyRepo.findById(group).orElse(null));
+
         ArrayList <Question> questions = new ArrayList<>();
         ArrayList <Answer> answers = new ArrayList<>();
         for (int i = 1; i <= count ; i++) {
