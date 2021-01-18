@@ -28,6 +28,8 @@ public class GroupsController {
     private TestingRepo testingRepo;
     @Autowired
     private ResultRepo resultRepo;
+    @Autowired
+    private UserRepo userRepo;
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
@@ -41,7 +43,7 @@ public class GroupsController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     @GetMapping("/add")
-    public String getGroupAdd(Model model) {
+    public String getGroupAdd() {
         return "groups-add";
     }
 
@@ -71,7 +73,8 @@ public class GroupsController {
         }
 
         model.addAttribute("group", group);
-        model.addAttribute("users", group.getContainsUsers());
+        Set<User> users = userRepo.findAllByInGroupsContainsOrderByFirstName(group);
+        model.addAttribute("users", users);
         return "groups-info";
     }
 

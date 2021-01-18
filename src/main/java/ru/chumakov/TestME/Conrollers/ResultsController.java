@@ -54,8 +54,8 @@ public class ResultsController {
         ArrayList<Question> questions = new ArrayList<>(questionRepo.findAllByTest(test));
         Map<Question,ArrayList<Answer>> questionWithAnswers= new HashMap<>();
 
-        for (int i = 0; i < questions.size() ; i++) {
-            questionWithAnswers.put(questions.get(i),new ArrayList<>(answerRepo.findAllByQuestion(questions.get(i))));
+        for (Question question : questions) {
+            questionWithAnswers.put(question, new ArrayList<>(answerRepo.findAllByQuestion(question)));
         }
 
         Set <Testing> testings= new HashSet<>();

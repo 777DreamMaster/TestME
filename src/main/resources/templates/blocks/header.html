@@ -18,7 +18,7 @@
             <a class="p-2 text-dark text-decoration-none" href="/test/creating" sec:authorize="hasAnyAuthority('CURATOR','ADMIN')">Создать тест</a>
             <a class="p-2 text-dark text-decoration-none" href="/results" sec:authorize="!hasAnyAuthority('CURATOR','ADMIN')">Ваши результаты</a>
 
-            <a class="h3 p-2 text-decoration-none" href="/user/profile" sec:authorize="isAuthenticated()" sec:authentication="name"></a>
+            <a class="h5 p-2 text-decoration-none" href="/user/profile" sec:authorize="isAuthenticated()" sec:authentication="name"></a>
         </nav>
 
 
