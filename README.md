@@ -12,4 +12,4 @@ P3221 Чумаков Алексей Андреевич
 - Стек технологий - Spring MVC, MySQL, Thymeleaf
 
 ### Пояснительная записка
-[Explanatory note](Explanatory note.pdf)
+[Explanatory note](https://github.com/777DreamMaster/TestME/blob/master/Explanatory%20note.pdf)
